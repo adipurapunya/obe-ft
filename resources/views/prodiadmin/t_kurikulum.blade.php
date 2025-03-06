@@ -2,6 +2,8 @@
 
 @section('content')
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -53,7 +55,7 @@
                                 <td><a href="{{ asset('SK-Kurikulum')}}/{{ $kr->filesk }}" target="_blank" /> {{ $kr->filesk }}</td>
                                 <td>
                                     <a href="{{ url('prodiadmin/e_kurikulum/'.Crypt::encryptString($kr->id), [])}}" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></a>
-                                    <a href="{{ url('prodiadmin/h_kurikulum/'.Crypt::encryptString($kr->id), [])}}" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a>
+                                    <a href="javascript:void(0);" onclick="konfirmasiHapus('{{ Crypt::encryptString($kr->id) }}')" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a>
                                 </td>
                             </tr>
                         @endforeach
@@ -79,10 +81,32 @@
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = "{{ url('superadmin/h_kurikulum') }}/" + id;
+                window.location.href = "{{ url('prodiadmin/h_kurikulum') }}/" + id;
             }
         });
     }
 </script>
+
+<style>
+        /* Memastikan dropdown "Show entries" tidak bertumpuk */
+    .dataTables_length select {
+        width: 80px !important;  /* Lebar dropdown */
+        padding: 6px;  /* Memberikan jarak agar tampilan lebih rapi */
+        border-radius: 5px;
+        text-align: center;
+        appearance: auto;
+        -moz-appearance: none;
+        -webkit-appearance: none;
+    }
+
+    /* Memastikan tabel fleksibel */
+    .dataTables_wrapper .dataTables_length select {
+        display: inline-block !important;
+        min-width: 80px;
+        max-width: 100px;
+        padding: 6px;
+    }
+
+</style>
 
   @endsection

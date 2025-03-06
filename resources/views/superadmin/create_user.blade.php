@@ -28,6 +28,12 @@
                             @csrf
                             <div class="box-body">
                             <div class="col-xs-12 col-sm-12 col-md-12">
+                                <div class="form-group">
+                                    <strong>NIP (Username)</strong>
+                                    <input type="text" name="nip" class="form-control" id="nip">
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-sm-12 col-md-12">
                             <div class="form-group">
                                     <strong>Nama User</strong>
                                     <input type="text" name="name" class="form-control" id="name">

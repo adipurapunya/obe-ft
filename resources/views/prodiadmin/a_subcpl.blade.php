@@ -1,3 +1,4 @@
+
 @extends('layouts.admin.panel')
 
 @section('content')
@@ -29,14 +30,25 @@
                     @csrf
                     <div id="subcpl_fields" class="col-xs-12 col-sm-12 col-md-12">
                         <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <strong>Kurikulum</strong>
+                                    <select name="kurikulum_id" class="form-control" id="kurikulum_id">
+                                        <option value="" selected disabled>Pilih Kurikulum</option>
+                                        @foreach($kurikulums as $kurikulum)
+                                            <option value="{{ $kurikulum->id }}">{{ $kurikulum->nama_kuri }}</option>
+                                        @endforeach
+                                    </select>
+                                    @if ($errors->has('kurikulum_id'))
+                                        <span class="text-danger">{{ $errors->first('kurikulum_id') }}</span>
+                                    @endif
+                                </div>
+                            </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <strong>CPL</strong>
-                                    <select name="cpl_id" class="form-control" onchange="updateCPLInfo(this.value)">
+                                    <select name="cpl_id" class="form-control" id="cpl_id" onchange="updateCPLInfo(this.value)">
                                         <option value="" selected disabled>Pilih CPL</option>
-                                        @foreach($cpel as $cp)
-                                            <option value="{{ $cp->cpl_id }}">{{ $cp->kode_cpl }}</option>
-                                        @endforeach
                                     </select>
                                     @if ($errors->has('cpl_id'))
                                         <span class="text-danger">{{ $errors->first('cpl_id') }}</span>
@@ -62,12 +74,31 @@
                                 <div class="form-group">
                                     <strong>Deskripsi Sub CPL</strong>
                                     <textarea name="desk_subcpl[]" class="form-control" style="height: 100px; resize: vertical;"></textarea>
-                                    <button type="button" class="btn btn-warning remove_subcpl" style="float: right">Hapus</button>
                                     @if ($errors->has('desk_subcpl'))
                                         <span class="text-danger">{{ $errors->first('desk_subcpl') }}</span>
                                     @endif
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <strong>Bobot</strong>
+                                    <input type="text" name="bobot[]" class="form-control">
+                                    @if ($errors->has('bobot'))
+                                        <span class="text-danger">{{ $errors->first('bobot') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <strong>Target Nilai</strong>
+                                    <input type="text" name="trgt_nilai[]" class="form-control">
+                                    <button type="button" class="btn btn-warning remove_subcpl" style="float: right; margin-top:10px">Hapus</button>
+                                    @if ($errors->has('trgt_nilai'))
+                                        <span class="text-danger">{{ $errors->first('trgt_nilai') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                     <div class="col-xs-12 col-sm-12 col-md-12">
@@ -85,91 +116,77 @@
 <!-- /.content-wrapper -->
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    var existingSubCPLs = {!! json_encode($existingSubCPLs) !!};
+    document.addEventListener('DOMContentLoaded', function() {
+        var cpel = {!! json_encode($cpel) !!};
+        var existingSubCPLs = {!! json_encode($existingSubCPLs) !!};
 
-    function generateNextSubCPLNumber(baseCode) {
-        var maxExistingNumber = existingSubCPLs[baseCode] || 0;
+        function updateCPLDropdown(kurikulumId) {
+            var cplDropdown = document.getElementById('cpl_id');
+            cplDropdown.innerHTML = '<option value="" selected disabled>Pilih CPL</option>';
 
-        var subCPLFields = document.querySelectorAll('input[name^="kode_subcpl"]');
-        subCPLFields.forEach(function(field) {
-            var fieldValue = field.value.split('.');
-            if (fieldValue[0] + '.' === baseCode) {
-                var fieldNumber = parseInt(fieldValue[1]);
-                if (!isNaN(fieldNumber) && fieldNumber > maxExistingNumber) {
-                    maxExistingNumber = fieldNumber;
+            cpel.forEach(function(cpl) {
+                if (cpl.kurikulum_id == kurikulumId) {
+                    var option = document.createElement('option');
+                    option.value = cpl.cpl_id;
+                    option.textContent = cpl.kode_cpl;
+                    cplDropdown.appendChild(option);
                 }
-            }
-        });
-        return maxExistingNumber + 1;
-    }
-
-    function updateCPLInfo(selectedCPLId) {
-        var descriptions = {!! json_encode($cpel->pluck('deskrip_cpl', 'cpl_id')) !!};
-        var selectedCPLDescription = descriptions[selectedCPLId];
-        document.getElementById("cpl_description").value = selectedCPLDescription;
-
-        var cplData = {!! json_encode($cpel->pluck('kode_cpl', 'cpl_id')) !!};
-        var cplCode = cplData[selectedCPLId];
-        if (cplCode !== undefined) {
-            var subCPLBase = "SCPL-" + cplCode.split('-')[1];
-            var nextSubCPLNumber = generateNextSubCPLNumber(subCPLBase);
-
-            document.getElementById("sub_cpl_code").value = subCPLBase + "." + nextSubCPLNumber;
+            });
         }
-    }
 
-        function updateSubCPLNumbers() {
-        var deletedCodeElement = document.getElementById("deleted_subcpl_code");
-        if (!deletedCodeElement) return;
+        function generateNextSubCPLNumber(baseCode, kurikulumId) {
+            var maxExistingNumber = 0;
 
-        var deletedCode = deletedCodeElement.value;
-        var subcplFields = document.getElementById("subcpl_fields");
-        if (!subcplFields) return;
-
-        var rows = subcplFields.querySelectorAll('.row');
-        var isDeleted = false;
-
-        rows.forEach(function(row) {
-            var codeInput = row.querySelector('input[name^="kode_subcpl"]');
-            if (!codeInput) return;
-
-            var fieldValue = codeInput.value.split('.');
-            var baseCode = fieldValue[0];
-            var fieldNumber = parseInt(fieldValue[1]);
-
-            if (!isDeleted && deletedCode !== "" && codeInput.value === deletedCode) {
-                codeInput.parentNode.parentNode.remove();
-                isDeleted = true;
+            if (existingSubCPLs[baseCode]) {
+                maxExistingNumber = existingSubCPLs[baseCode];
             }
 
-            if (isDeleted && baseCode === deletedCode.split('.')[0]) {
-                var newNumber = fieldNumber - 1;
-                codeInput.value = baseCode + '.' + newNumber;
+            return maxExistingNumber + 1;
+        }
+
+        function updateCPLInfo(selectedCPLId) {
+            var descriptions = {!! json_encode($cpel->pluck('deskrip_cpl', 'cpl_id')) !!};
+            var selectedCPLDescription = descriptions[selectedCPLId];
+            document.getElementById("cpl_description").value = selectedCPLDescription;
+
+            var cplData = {!! json_encode($cpel->pluck('kode_cpl', 'cpl_id')) !!};
+            var cplCode = cplData[selectedCPLId];
+
+            if (cplCode !== undefined) {
+                var kurikulumId = document.getElementById('kurikulum_id').value;
+                var subCPLBase = "SCPL-" + cplCode.split('-')[1];
+
+                var maxIndex = {!! json_encode($existingSubCPLs) !!}[cplCode] || 0;
+
+                var nextSubCPLNumber = maxIndex + 1;
+
+                document.getElementById("sub_cpl_code").value = subCPLBase + "." + nextSubCPLNumber;
             }
-        });
-    }
+        }
 
         function addSubCPLField() {
             var selectedCPL = document.querySelector('select[name="cpl_id"]').value;
             var cplData = {!! json_encode($cpel->pluck('kode_cpl', 'cpl_id')) !!};
             var cplCode = cplData[selectedCPL];
+
             if (cplCode !== undefined) {
+                var kurikulumId = document.getElementById('kurikulum_id').value;
                 var subCPLBase = "SCPL-" + cplCode.split('-')[1];
 
-                var maxExistingNumber = 0;
-                var subCPLFields = document.querySelectorAll('input[name^="kode_subcpl"]');
-                subCPLFields.forEach(function(field) {
-                    var fieldValue = field.value.split('.');
-                    if (fieldValue[0] === subCPLBase) {
-                        var fieldNumber = parseInt(fieldValue[1]);
-                        if (!isNaN(fieldNumber) && fieldNumber > maxExistingNumber) {
-                            maxExistingNumber = fieldNumber;
-                        }
+                var existingSubCPLInputs = document.querySelectorAll('input[name^="kode_subcpl"]');
+
+                var maxNumber = 0;
+                existingSubCPLInputs.forEach(function(input) {
+                    var fieldValue = input.value.split('.');
+                    var fieldBaseCode = fieldValue[0];
+                    var fieldNumber = parseInt(fieldValue[1]);
+
+                    if (fieldBaseCode === subCPLBase && fieldNumber > maxNumber) {
+                        maxNumber = fieldNumber;
                     }
                 });
 
-                var nextSubCPLNumber = maxExistingNumber + 1;
+                var nextSubCPLNumber = maxNumber + 1;
 
                 var subcplFields = document.getElementById("subcpl_fields");
 
@@ -194,47 +211,83 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 var newCol2 = document.createElement("div");
                 newCol2.classList.add("col-md-6");
-                var subcplDescFormGroup = document.createElement("div");
-                subcplDescFormGroup.classList.add("form-group");
-                var subcplDescLabel = document.createElement("strong");
-                subcplDescLabel.textContent = "Deskripsi Sub CPL";
-                var subcplDescTextarea = document.createElement("textarea");
-                subcplDescTextarea.setAttribute("name", "desk_subcpl[]");
-                subcplDescTextarea.classList.add("form-control");
-                subcplDescTextarea.style.height = "100px";
-                subcplDescTextarea.style.resize = "vertical";
+                var subcplDescriptionFormGroup = document.createElement("div");
+                subcplDescriptionFormGroup.classList.add("form-group");
+                var subcplDescriptionLabel = document.createElement("strong");
+                subcplDescriptionLabel.textContent = "Deskripsi Sub CPL";
+                var subcplDescriptionTextarea = document.createElement("textarea");
+                subcplDescriptionTextarea.setAttribute("name", "desk_subcpl[]");
+                subcplDescriptionTextarea.classList.add("form-control");
+                subcplDescriptionTextarea.style.height = "100px";
+                subcplDescriptionTextarea.style.resize = "vertical";
+                subcplDescriptionFormGroup.appendChild(subcplDescriptionLabel);
+                subcplDescriptionFormGroup.appendChild(subcplDescriptionTextarea);
+                newCol2.appendChild(subcplDescriptionFormGroup);
+
+                var newCol3 = document.createElement("div");
+                newCol3.classList.add("col-md-6");
+                var bobotFormGroup = document.createElement("div");
+                bobotFormGroup.classList.add("form-group");
+                var bobotLabel = document.createElement("strong");
+                bobotLabel.textContent = "Bobot Nilai";
+                var bobotInput = document.createElement("input");
+                bobotInput.setAttribute("type", "text");
+                bobotInput.setAttribute("name", "bobot[]");
+                bobotInput.classList.add("form-control");
+                bobotFormGroup.appendChild(bobotLabel);
+                bobotFormGroup.appendChild(bobotInput);
+                newCol3.appendChild(bobotFormGroup);
+
+                var newCol4 = document.createElement("div");
+                newCol4.classList.add("col-md-6");
+                var targetFormGroup = document.createElement("div");
+                targetFormGroup.classList.add("form-group");
+                var targetLabel = document.createElement("strong");
+                targetLabel.textContent = "Target Nilai";
+                var targetInput = document.createElement("input");
+                targetInput.setAttribute("type", "number");
+                targetInput.setAttribute("name", "trgt_nilai[]");
+                targetInput.classList.add("form-control");
+                targetFormGroup.appendChild(targetLabel);
+                targetFormGroup.appendChild(targetInput);
+                newCol4.appendChild(targetFormGroup);
+
                 var removeButton = document.createElement("button");
                 removeButton.setAttribute("type", "button");
                 removeButton.classList.add("btn", "btn-warning", "remove_subcpl");
                 removeButton.style.float = "right";
                 removeButton.textContent = "Hapus";
-                removeButton.onclick = function () {
-                    this.closest(".row").remove();
-                    updateSubCPLNumbers();
-                };
-                subcplDescFormGroup.appendChild(subcplDescLabel);
-                subcplDescFormGroup.appendChild(subcplDescTextarea);
-                subcplDescFormGroup.appendChild(removeButton);
-                newCol2.appendChild(subcplDescFormGroup);
+                subcplDescriptionFormGroup.appendChild(removeButton);
 
                 newRow.appendChild(newCol1);
                 newRow.appendChild(newCol2);
+                newRow.appendChild(newCol3);
+                newRow.appendChild(newCol4);
 
                 subcplFields.appendChild(newRow);
             }
         }
 
+        document.querySelector('.add_subcpl_field').addEventListener('click', addSubCPLField);
 
-        document.querySelector('.add_subcpl_field').addEventListener('click', function() {
-            addSubCPLField();
+        document.getElementById('kurikulum_id').addEventListener('change', function() {
+            var kurikulumId = this.value;
+            updateCPLDropdown(kurikulumId);
         });
 
-        var cplDropdown = document.querySelector('select[name="cpl_id"]');
-        cplDropdown.addEventListener('change', function() {
-            var selectedCPL = this.value;
-            updateCPLInfo(selectedCPL);
+        document.getElementById('cpl_id').addEventListener('change', function() {
+            updateCPLInfo(this.value);
         });
+
+        document.getElementById('subcpl_fields').addEventListener('click', function(e) {
+            if (e.target.classList.contains('remove_subcpl')) {
+                e.target.closest('.row').remove();
+            }
+        });
+
+        var initialKurikulumId = document.getElementById('kurikulum_id').value;
+        updateCPLDropdown(initialKurikulumId);
     });
 </script>
-@endsection
 
+@endsection

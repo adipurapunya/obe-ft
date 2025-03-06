@@ -2,6 +2,8 @@
 
 @section('content')
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -39,12 +41,13 @@
                             <th colspan="2" style="text-align: center; vertical-align: middle;">Mata Kuliah</th>
                             <th rowspan="2" style="text-align: center; vertical-align: middle;">Sifat</th>
                             <th rowspan="2" style="width: 6%; text-align: center; vertical-align: middle;">Paket Semester</th>
-                            <th colspan="3" style="text-align: center; vertical-align: middle;">SKS</th>
+                            <th colspan="4" style="text-align: center; vertical-align: middle;">SKS</th>
                             <th style="width: 8%; text-align: center; vertical-align: middle;" rowspan="2">Aksi</th>
                         </tr>
                         <tr>
                             <th><center>Kode</center></th>
                             <th>Nama</th>
+                            <th><center>Kurikulum</center></th>
                             <th><center>T</center></th>
                             <th><center>P</center></th>
                             <th><center>PL</center></th>
@@ -60,12 +63,13 @@
                                 <td>{{ $mt->nama_mk }}</td>
                                 <td><center>{{ $mt->status }}</center></td>
                                 <td><center>{{ $mt->nama_smtr }}</center></td>
+                                <td><center>{{ $mt->sks_kuri }}</center></td>
                                 <td><center>{{ $mt->sks_teo }}</center></td>
                                 <td><center>{{ $mt->sks_prak }}</center></td>
                                 <td><center>{{ $mt->sks_lap }}</center></td>
                                 <td>
-                                    <a href="{{ url('superadmin/e_matkul/'.Crypt::encryptString($mt->id), [])}}" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></a>
-                                    <a href="{{ url('superadmin/h_matkul/'.Crypt::encryptString($mt->id), [])}}" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a>
+                                    <a href="{{ url('prodiadmin/e_matkul/'.Crypt::encryptString($mt->id), [])}}" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></a>
+                                    <a href="javascript:void(0);" onclick="konfirmasiHapus('{{ Crypt::encryptString($mt->id) }}')" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a>
                                 </td>
                             </tr>
                         @endforeach
@@ -91,10 +95,32 @@
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = "{{ url('superadmin/h_matkul') }}/" + id;
+                window.location.href = "{{ url('prodiadmin/h_matkul') }}/" + id;
             }
         });
     }
 </script>
+
+<style>
+        /* Memastikan dropdown "Show entries" tidak bertumpuk */
+    .dataTables_length select {
+        width: 80px !important;  /* Lebar dropdown */
+        padding: 6px;  /* Memberikan jarak agar tampilan lebih rapi */
+        border-radius: 5px;
+        text-align: center;
+        appearance: auto;
+        -moz-appearance: none;
+        -webkit-appearance: none;
+    }
+
+    /* Memastikan tabel fleksibel */
+    .dataTables_wrapper .dataTables_length select {
+        display: inline-block !important;
+        min-width: 80px;
+        max-width: 100px;
+        padding: 6px;
+    }
+
+</style>
 
   @endsection

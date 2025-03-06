@@ -235,115 +235,93 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        var maxKodeCplPerKurikulum = @json($maxKodeCplPerKurikulum);
-        var kurikulumSelect = document.getElementById("kurikulum_id");
-        var currentMaxCplNumber = 0;
-        var firstCplGenerated = false;
+    var maxKodeCplPerKurikulum = @json($maxKodeCplPerKurikulum);
+    var kurikulumSelect = document.getElementById("kurikulum_id");
+    var currentMaxCplNumber = 0;
+    var initialField = document.getElementById("kode_cpl");
 
-        kurikulumSelect.addEventListener("change", function() {
-            var kurikulumId = this.value;
-            currentMaxCplNumber = maxKodeCplPerKurikulum[kurikulumId] || 0;
-            generateFirstCplCode(currentMaxCplNumber);
-            firstCplGenerated = true;
+    kurikulumSelect.addEventListener("change", function() {
+        var kurikulumId = this.value;
+        currentMaxCplNumber = maxKodeCplPerKurikulum[kurikulumId] || 0;
+        generateFirstCplCode(currentMaxCplNumber);
+        updateGeneratedCplCodes();
+    });
 
-            // Perbarui kode CPL yang sudah tergenerate di form
-            updateGeneratedCplCodes();
-        });
+    document.getElementById("add_cpl").addEventListener("click", function() {
+        addCPLField();
+    });
 
-        document.getElementById("add_cpl").addEventListener("click", function() {
-            if (firstCplGenerated) {
-                addCPLField();
-            }
-        });
+    function generateFirstCplCode(maxKodeCpl) {
+        currentMaxCplNumber = maxKodeCpl;
+        initialField.value = "CPL-" + padNumber(currentMaxCplNumber + 1, 2);
+    }
 
-        function generateFirstCplCode(maxKodeCpl) {
-            var firstCplInput = document.getElementById("kode_cpl");
-            currentMaxCplNumber = maxKodeCpl ? maxKodeCpl : 0;
+    function addCPLField() {
+        var cplFields = document.getElementById("cpl_fields");
+        var newCplNumber = currentMaxCplNumber + 2; // Start from the next number after initial field
 
-            var cplInputs = document.querySelectorAll("#cpl_fields .cpl_field input[name='kode_cpl[]']");
-            var existingCPLs = Array.from(cplInputs).map(input => input.value);
-            var newCplNumber = currentMaxCplNumber + 1;
-
-            while (existingCPLs.includes("CPL-" + padNumber(newCplNumber, 2))) {
-                newCplNumber++;
-            }
-
-            currentMaxCplNumber = newCplNumber;
-            firstCplInput.value = "CPL-" + padNumber(currentMaxCplNumber, 2);
-        }
-
-        function addCPLField() {
-            var cplFields = document.getElementById("cpl_fields");
-
-            // Mendapatkan nomor CPL terakhir sebelum form dihapus
-            var cplInputs = document.querySelectorAll("#cpl_fields .cpl_field input[name='kode_cpl[]']");
-            var lastCplNumber = 0;
-            cplInputs.forEach(function(input) {
-                var number = parseInt(input.value.split("-")[1]);
-                if (number > lastCplNumber) {
-                    lastCplNumber = number;
-                }
-            });
-
-            var newCplNumber = lastCplNumber + 1;
-
-            var newField = document.createElement("div");
-            newField.className = "form-group cpl_field";
-            newField.innerHTML = `
-                <div class="row cpl_field">
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <strong>Kode CPL</strong>
-                            <input type="text" name="kode_cpl[]" class="form-control" value="CPL-${padNumber(newCplNumber, 2)}" readonly>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <strong>Deskripsi CPL</strong>
-                            <textarea name="deskrip_cpl[]" class="form-control" style="height: 100px; resize: vertical;"></textarea>
-                            <button type="button" class="btn btn-warning remove_cpl" style="float: right; margin-top:5px">Hapus</button>
-                        </div>
+        var newField = document.createElement("div");
+        newField.className = "form-group cpl_field";
+        newField.innerHTML = `
+            <div class="row cpl_field">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <strong>Kode CPL</strong>
+                        <input type="text" name="kode_cpl[]" class="form-control" value="CPL-${padNumber(newCplNumber, 2)}" readonly>
                     </div>
                 </div>
-            `;
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <strong>Deskripsi CPL</strong>
+                        <textarea name="deskrip_cpl[]" class="form-control" style="height: 100px; resize: vertical;"></textarea>
+                        <button type="button" class="btn btn-warning remove_cpl" style="float: right; margin-top:5px">Hapus</button>
+                    </div>
+                </div>
+            </div>
+        `;
 
-            cplFields.appendChild(newField);
+        cplFields.appendChild(newField);
+        handleCPLRemoval(newField);
+        currentMaxCplNumber++;
+    }
 
-            newField.querySelector(".remove_cpl").onclick = function() {
-                newField.remove();
-                updateCplNumbers();
-            };
-        }
+    function padNumber(number, length) {
+        return number.toString().padStart(length, '0');
+    }
 
-        function updateCplNumbers() {
-            var cplInputs = document.querySelectorAll("#cpl_fields .cpl_field input[name='kode_cpl[]']");
-            var existingCPLs = Array.from(cplInputs).map(input => input.value);
+    function updateGeneratedCplCodes() {
+        var cplInputs = document.querySelectorAll("#cpl_fields .cpl_field input[name='kode_cpl[]']");
+        cplInputs.forEach(function(input, index) {
+            input.value = "CPL-" + padNumber(currentMaxCplNumber + index + 1, 2);
+        });
+    }
 
-            var minNumber = Infinity;
-            existingCPLs.forEach(function(value) {
-                var number = parseInt(value.split("-")[1]);
-                if (number < minNumber) {
-                    minNumber = number;
-                }
-            });
+    function handleCPLRemoval(newField) {
+        newField.querySelector(".remove_cpl").onclick = function() {
+            newField.remove();
+            updateCplNumbers();
+        };
+    }
 
-            var newCplNumber = minNumber;
-            cplInputs.forEach(function(input, index) {
-                input.value = "CPL-" + padNumber(newCplNumber++, 2);
-            });
-        }
+    function updateCplNumbers() {
+        var cplInputs = document.querySelectorAll("#cpl_fields .cpl_field input[name='kode_cpl[]']");
+        var existingCPLs = Array.from(cplInputs).map(input => input.value);
 
-        function padNumber(number, length) {
-            return number.toString().padStart(length, '0');
-        }
+        var minNumber = Infinity;
+        existingCPLs.forEach(function(value) {
+            var number = parseInt(value.split("-")[1]);
+            if (number < minNumber) {
+                minNumber = number;
+            }
+        });
 
-        function updateGeneratedCplCodes() {
-            var cplInputs = document.querySelectorAll("#cpl_fields .cpl_field input[name='kode_cpl[]']");
-            cplInputs.forEach(function(input, index) {
-                input.value = "CPL-" + padNumber(currentMaxCplNumber + index, 2);
-            });
-        }
-    });
+        var newCplNumber = minNumber;
+        cplInputs.forEach(function(input, index) {
+            input.value = "CPL-" + padNumber(newCplNumber++, 2);
+        });
+    }
+});
+
 </script>
 
 

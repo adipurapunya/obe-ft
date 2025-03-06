@@ -25,7 +25,7 @@
           <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
           <li class="nav-item menu-open">
-            <a href="#" class="nav-link active">
+            <a href="/" class="nav-link active">
               <i class="nav-icon fas fa-tachometer-alt"></i>
               <p>
                 Dashboard
@@ -53,6 +53,12 @@
                 <a href="/superadmin/t_prodi" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Master Prodi</p>
+                </a>
+              </li>
+	       <li class="nav-item">
+                <a href="/superadmin/t_adminprodi" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Master Admin Prodi</p>
                 </a>
               </li>
               <li class="nav-item">
@@ -103,7 +109,7 @@
                 </a>
               </li>
             </ul>
-            <ul class="nav nav-treeview" style="padding-left: 25px;">
+            {{-- <ul class="nav nav-treeview" style="padding-left: 25px;">
                 <li class="nav-item">
                   <a href="/superadmin/t_koorkk" class="nav-link">
                     <i class="far fa-circle nav-icon"></i>
@@ -111,7 +117,7 @@
                   </a>
                 </li>
               </ul>
-          </li>
+          </li> --}}
 
           <li class="nav-item">
             <a href="#" class="nav-link">
@@ -129,7 +135,7 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a href="/administrator/t_video" class="nav-link">
+                <a href="/superadmin/t_subcpl" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Sub CPL</p>
                 </a>
@@ -147,15 +153,15 @@
             </a>
             <ul class="nav nav-treeview" style="padding-left: 25px;">
               <li class="nav-item">
-                <a href="/superadmin/t_cpmk" class="nav-link">
+                <a href="/superadmin/t_mkcpmk" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>CPMK</p>
+                  <p>MK CPMK</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="/superadmin/t_subcpmk" class="nav-link">
+                <a href="/superadmin/t_mkscpmk" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>Sub CPMK</p>
+                  <p>MK Sub CPMK</p>
                 </a>
               </li>
             </ul>
@@ -181,7 +187,7 @@
               <li class="nav-item">
                 <a href="/dosen/t_subcpl" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>Sub CPL</p>
+                  <p>Sub CPL (PI)</p>
                 </a>
               </li>
             </ul>
@@ -202,24 +208,13 @@
                     <p>MK Diampu</p>
                     </a>
                 </li>
+
                 <li class="nav-item">
                     <a href="/dosen/t_mkcpmk" class="nav-link">
                     <i class="far fa-circle nav-icon"></i>
                     <p>MK & CPMK</p>
                     </a>
                 </li>
-                {{-- <li class="nav-item">
-                    <a href="/dosen/t_mkcpl" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>MK & CPL</p>
-                    </a>
-                </li> --}}
-                {{-- <li class="nav-item">
-                    <a href="/dosen/t_cpmk" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>MK & Sub CPL</p>
-                    </a>
-                </li> --}}
 
                 <li class="nav-item">
                     <a href="/dosen/t_mkscpmk" class="nav-link">
@@ -227,12 +222,14 @@
                     <p>MK & Sub CPMK</p>
                     </a>
                 </li>
+
                 <li class="nav-item">
                     <a href="/dosen/t_rps" class="nav-link">
                     <i class="far fa-circle nav-icon"></i>
                     <p>RPS</p>
                     </a>
                 </li>
+
                 <li class="nav-item">
                     <a href="/dosen/t_tarcpmk" class="nav-link">
                     <i class="far fa-circle nav-icon"></i>
@@ -245,7 +242,29 @@
                         <p>Input Nilai</p>
                     </a>
                 </li>
-            </li>
+            </ul>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                  <i class="nav-icon fas fa-book"></i>
+                  <p>
+                    Report
+                    <i class="fas fa-angle-left right"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview" style="padding-left: 25px;">
+                  <li class="nav-item">
+                    <a href="/dosen/t_perkelas" class="nav-link">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>Per Kelas</p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="/dosen/t_permatkul" class="nav-link">
+                      <i class="far fa-circle nav-icon"></i>
+                      <p>Per Mata Kuliah</p>
+                    </a>
+                  </li>
+                </ul>
         @endif
 
         @if(Auth::user()->role->id == 3)
@@ -279,9 +298,33 @@
                 </a>
               </li>
             </ul>
+            <ul class="nav nav-treeview" style="padding-left: 25px;">
+                <li class="nav-item">
+                  <a href="/prodiadmin/a_mahasiswa" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Master Mahasiswa</p>
+                  </a>
+                </li>
+            </ul>
+           <ul class="nav nav-treeview" style="padding-left: 25px;">
+                <li class="nav-item">
+                  <a href="/prodiadmin/t_kelas" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Master Kelas</p>
+                  </a>
+                </li>
+            </ul>
+            <ul class="nav nav-treeview" style="padding-left: 25px;">
+                <li class="nav-item">
+                  <a href="/prodiadmin/t_mhskelas" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Master Mhs-Kelas</p>
+                  </a>
+                </li>
+            </ul>
           <li class="nav-item">
             <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-book"></i>
+              <i class=" nav-icon fas fa-user"></i>
               <p>
                 Capaian Pmbelajaran
                 <i class="fas fa-angle-left right"></i>
@@ -299,7 +342,7 @@
                 <li class="nav-item">
                   <a href="/prodiadmin/t_subcpl" class="nav-link">
                     <i class="far fa-circle nav-icon"></i>
-                    <p>Sub CPL</p>
+                    <p>Sub CPL (PI)</p>
                   </a>
                 </li>
               </ul>
@@ -328,15 +371,35 @@
                 </a>
               </li>
             </ul>
-            {{-- <ul class="nav nav-treeview" style="padding-left: 25px;">
-                <li class="nav-item">
-                  <a href="/prodiadmin/t_koorkk" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Koord. Klp Keahlian</p>
-                  </a>
-                </li>
-              </ul> --}}
           </li>
+
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-coffee fa-2x"></i>
+              
+              <p>
+                Laporan
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview" style="padding-left: 25px;">
+              <li class="nav-item">
+                <a href="/prodiadmin/t_laporan_cpmk" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>CPL/SCPL Mahasiswa</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="/prodiadmin/t_laporan_cpl_subcpl_prodi" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>CPL/SCPL Prodi</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+
+
+
           @endif
 
     </ul>

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class SubCpl extends Model
 {
     protected $table = 'subcpls';
-    protected $fillable = ['id', 'cpl_id', 'kode_subcpl', 'desk_subcpl'];
+    protected $fillable = ['id', 'cpl_id', 'kode_subcpl', 'desk_subcpl', 'bobot', 'trgt_nilai'];
 
     public function matkul()
     {

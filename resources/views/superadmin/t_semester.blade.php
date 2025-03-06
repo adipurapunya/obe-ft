@@ -2,6 +2,8 @@
 
 @section('content')
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -51,7 +53,7 @@
                                 <td>{{ $sm->keterangan }}</td>
                                 <td>
                                     <a href="{{ url('superadmin/e_semester/'.Crypt::encryptString($sm->id), [])}}" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></a>
-                                    <a href="{{ url('superadmin/h_semester/'.Crypt::encryptString($sm->id), [])}}" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a>
+                                    <a href="javascript:void(0);" onclick="konfirmasiHapus('{{ Crypt::encryptString($sm->id) }}')" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a>
                                 </td>
                             </tr>
                         @endforeach

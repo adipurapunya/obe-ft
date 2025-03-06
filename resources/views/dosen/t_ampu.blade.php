@@ -27,7 +27,6 @@
         <div class="card card-primary card-outline">
             <div class="card-header">
                 <h5 class="m-0">Daftar Mata Kuliah Diampu</h5>
-            </tr>
             </div>
             <div class="card-body">
                 <form method="GET" action="{{ url('/dosen/t_ampu') }}">
@@ -41,7 +40,12 @@
                             <div class="form-group">
                                 <select id="semester_select" name="semester_id" class="form-control">
                                     @foreach ($smtr as $sm)
-                                    <option value="{{ encrypt($sm->id) }}" @if(isset($encrypted_semester_id) && $encrypted_semester_id == encrypt($sm->id)) selected @endif>{{ $sm->keterangan }}</option>
+                                        <option value="{{ encrypt($sm->id) }}"
+                                            @if(isset($encrypted_semester_id) && $encrypted_semester_id == encrypt($sm->id))
+                                                selected
+                                            @endif>
+                                            <b>{{ $sm->keterangan }}</b>
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -65,29 +69,29 @@
                     <tr>
                         <td style="width:12%"><b>Nama</b></td>
                         <td style="width: 3%"></td>
-                        @foreach($mata_kuliah->unique('name') as $mk)
-                            <td style="width: 70%; border-bottom: 1px solid rgb(95, 158, 160); color: rgb(95, 158, 160);"><b>{{ $mk->nama_dosen }}</td>
+                        @foreach($mata_kuliah->unique('nama_dosen') as $mk)
+                            <td style="width: 70%; border-bottom: 1px solid rgb(95, 158, 160); color: rgb(95, 158, 160);"><b>{{ $mk->nama_dosen }}</b></td>
                         @endforeach
                     </tr>
                     <tr>
                         <td style="width:8%"><b>NIDN</b></td>
                         <td style="width: 3%"></td>
                         @foreach($mata_kuliah->unique('nidn') as $mk)
-                            <td style="width: 70%; border-bottom: 1px solid rgb(95, 158, 160); color: rgb(95, 158, 160);"><b>{{ $mk->nidn }}</td>
+                            <td style="width: 70%; border-bottom: 1px solid rgb(95, 158, 160); color: rgb(95, 158, 160);"><b>{{ $mk->nidn }}</b></td>
                         @endforeach
                     </tr>
                     <tr>
                         <td style="width:8%"><b>Program Studi</b></td>
                         <td style="width: 3%"></td>
                         @foreach($mata_kuliah->unique('nama_prodi') as $mk)
-                            <td style="width: 70%; border-bottom: 1px solid rgb(95, 158, 160); color: rgb(95, 158, 160);"><b>{{ $mk->nama_prodi }}</td>
+                            <td style="width: 70%; border-bottom: 1px solid rgb(95, 158, 160); color: rgb(95, 158, 160);"><b>{{ $mk->nama_prodi }}</b></td>
                         @endforeach
                     </tr>
                     <tr>
                         <td style="width:8%"><b>Semester</b></td>
                         <td style="width: 3%"></td>
                         @foreach($mata_kuliah->unique('keterangan') as $mk)
-                            <td style="width: 70%; border-bottom: 1px solid rgb(95, 158, 160); color: rgb(95, 158, 160);"><b>{{ $mk->keterangan }}</td>
+                            <td style="width: 70%; border-bottom: 1px solid rgb(95, 158, 160); color: rgb(95, 158, 160);"><b>{{ $mk->keterangan }}</b></td>
                         @endforeach
                     </tr>
                 </table><br><br>
@@ -110,7 +114,7 @@
                     <tbody>
                         @foreach($mata_kuliah as $mk)
                             <tr>
-                                <td><center>{{ $loop->iteration }}<center></td>
+                                <td><center>{{ $loop->iteration }}</center></td>
                                 <td><center>{{ $mk->kode_mk }}</center></td>
                                 <td>{{ $mk->nama_mk }}</td>
                                 <td><center>{{ $mk->nama_kelas }}</center></td>
@@ -125,40 +129,45 @@
                 <p>Tidak ada data yang tersedia.</p>
                 @endif
             </div>
-            </div>
+        </div>
     </section>
     <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
+</div>
+<!-- /.content-wrapper -->
 
-    {{-- <script>
+<script>
+    function konfirmasiHapus(id) {
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: "Anda tidak dapat mengembalikan file ini setelah dihapus!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'OK',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "{{ url('superadmin/h_matkul') }}/" + id;
+            }
+        });
+    }
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var semesterSelect = document.getElementById('semester_select');
         var selectedSemester = localStorage.getItem('selected_semester');
 
         if (selectedSemester) {
-            document.getElementById('semester_select').value = selectedSemester;
+            semesterSelect.value = selectedSemester;
         }
 
-        document.getElementById('semester_select').addEventListener('change', function() {
+        semesterSelect.addEventListener('change', function() {
             localStorage.setItem('selected_semester', this.value);
         });
-    </script> --}}
-    <script>
-        function konfirmasiHapus(id) {
-            Swal.fire({
-                title: 'Apakah Anda yakin?',
-                text: "Anda tidak dapat mengembalikan file ini setelah dihapus!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'OK',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "{{ url('superadmin/h_matkul') }}/" + id;
-                }
-            });
-        }
-    </script>
+    });
+</script>
 
-  @endsection
+
+@endsection

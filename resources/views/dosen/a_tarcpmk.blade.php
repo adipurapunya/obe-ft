@@ -4,13 +4,14 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css">
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <div class="content-wrapper">
     <div class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1 class="m-0">Form Input Matriks Mata Kuliah dan CPMK</h1>
+                <div class="col-sm-12">
+                    <h1 class="m-0">Form Input Taget/Penilaian CPMK untuk {{$dataMK->kode_mk}} - {{$dataMK->nama_mk}}</h1>
                 </div>
             </div>
         </div>
@@ -19,13 +20,15 @@
     <section class="content">
         <div class="card card-primary card-outline">
             <div class="card-header">
-                <h5 class="m-0">Form Input Matriks Mata Kuliah dan CPMK</h5>
             </div>
 
             <div class="card-body">
                 <form role="form" method="post" action="{{ url('dosen/s_tarcpmk/'.Crypt::encryptString($matkul_id)) }}">
                     @csrf
-
+                    @foreach($kelas as $kls)
+                        <input type="hidden" name="kelas_id[]" value="{{ $kls->kelas_id }}">
+                    @endforeach
+                        <input type="hidden" name="semester_id" value="{{ $dataMK->semester_id }}">
                     <div class="col-xs-12 col-sm-12 col-md-12">
                         <div id="form-container">
                             <div class="row form-group-template">
@@ -54,7 +57,7 @@
                                         <select name="kompnilai_id[]" class="form-control">
                                             <option value=" " selected disabled>Pilih Jenis Penilaian</option>
                                             @foreach($jenilai as $jn)
-                                              <option value="{{ $jn->id }}">{{ $jn->jen_penilaian }}</option>
+                                              <option value="{{ $jn->id }}">{{ $jn->jen_penilaian }} - {{$jn->label}}</option>
                                             @endforeach
                                             </select>
                                             @if ($errors->has('kompnilai_id'))
@@ -142,6 +145,18 @@
 
         $('.form-group-template:first .remove-subcpmk').closest('.remove-button-container').remove();
         initFormEvents();
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        @if (session('warning'))
+            Swal.fire({
+                icon: 'warning',
+                title: 'Maaf Data Mahasiswa KOSONG',
+                text: '{{ session("warning") }}'
+            });
+        @endif
     });
 </script>
 

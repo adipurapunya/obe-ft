@@ -2,6 +2,8 @@
 
 @section('content')
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -117,7 +119,9 @@
                                 <td>{{ $msc->desk_scpmk }}</td>
                                 <td style="text-align: center">
                                     <a href="{{ url('dosen/e_mkscpmk/'.Crypt::encryptString($msc->mkscpmk_id), [])}}" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></a>
-                                    <a href="{{ url('dosen/h_mkscpmk/'.Crypt::encryptString($msc->mkscpmk_id), [])}}" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a>
+                                    <a href="javascript:void(0);" onclick="konfirmasiHapus('{{ Crypt::encryptString($msc->mkscpmk_id) }}')" class="btn btn-danger btn-sm">
+                                        <i class="fa fa-trash"></i>
+                                    </a>
                                 </td>
                             </tr>
                         @endforeach
@@ -143,10 +147,22 @@
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = "{{ url('superadmin/h_matkul') }}/" + id;
+                window.location.href = "{{ url('dosen/h_mkscpmk') }}/" + id;
             }
         });
     }
 </script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        @if (session('warning'))
+            Swal.fire({
+                icon: 'warning',
+                title: 'Maaf Data CPMK KOSONG',
+                text: '{{ session("warning") }}'
+            });
+        @endif
+    });
+    </script>
 
 @endsection

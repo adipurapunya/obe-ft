@@ -2,6 +2,11 @@
 
 @section('content')
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
     <!-- Content Header (Page header) -->
@@ -77,7 +82,7 @@
                                 <td>{{ $mk->kode_mk }} - {{ $mk->nama_mk }}</td>
                                 {{-- <td><center>{{ $mk->nama_kelas }}</center></td> --}}
                                 <td>
-                                    <center><a href="{{ url('dosen/a_mkcpmk/'.Crypt::encryptString($mk->matkul_id), [])}}" class="btn btn-sm" style="color:white; background-color: #5c94ba">+ Input CPMK</a></center>
+                                    <center><a href="{{ url('dosen/a_mkcpmk/'.Crypt::encryptString($mk->matkul_id).'/'.$encrypted_semester_id, []) }}" class="btn btn-sm" style="color:white; background-color: #5c94ba">+ Input CPMK</a></center> 
                                 </td>
                             </tr>
                         @endforeach
@@ -118,7 +123,9 @@
                                 <td>{{ $mc->desk_cpmk }}</td>
                                 <td style="text-align: center">
                                     <a href="{{ url('dosen/e_mkcpmk/'.Crypt::encryptString($mc->mkcpmk_id), [])}}" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></a>
-                                    <a href="{{ url('dosen/h_mkcpmk/'.Crypt::encryptString($mc->mkcpmk_id), [])}}" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a>
+                                    <a href="javascript:void(0);" onclick="konfirmasiHapus('{{ Crypt::encryptString($mc->mkcpmk_id) }}')" class="btn btn-danger btn-sm">
+                                        <i class="fa fa-trash"></i>
+                                    </a>
                                 </td>
                             </tr>
                         @endforeach
@@ -147,10 +154,22 @@
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = "{{ url('superadmin/h_matkul') }}/" + id;
+                    window.location.href = "{{ url('dosen/h_mkcpmk') }}/" + id;
                 }
             });
         }
+    </script>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        @if (session('warning'))
+            Swal.fire({
+                icon: 'warning',
+                title: 'Maaf Data Mahasiswa KOSONG',
+                text: '{{ session("warning") }}'
+            });
+        @endif
+    });
     </script>
 
 @endsection

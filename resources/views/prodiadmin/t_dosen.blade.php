@@ -39,6 +39,7 @@
                         <th style="width: 9%">NIP</th>
                         <th>Nama Dosen</th>
                         <th>Jurusan</th>
+                        <th><center>Aksi</center></th>
                     </thead>
                     <tbody>
                         @foreach($data as $ds)
@@ -47,7 +48,10 @@
                                 <td>{{ $ds->nidn }}</td>
                                 <td>{{ $ds->nip }}</td>
                                 <td>{{ $ds->nama_dosen }}</td>
-                                <td>{{ $ds->nama_prodi }}</td>
+                                <td><center>{{ $ds->nama_prodi }}</center></td>
+                                <td>
+                                    <center><a href="{{ url('prodiadmin/e_dosen/'.Crypt::encryptString($ds->id), [])}}" class="btn btn-sm btn-warning">Edit</a>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -77,6 +81,28 @@
         });
     }
 </script>
+
+<style>
+        /* Memastikan dropdown "Show entries" tidak bertumpuk */
+    .dataTables_length select {
+        width: 80px !important;  /* Lebar dropdown */
+        padding: 6px;  /* Memberikan jarak agar tampilan lebih rapi */
+        border-radius: 5px;
+        text-align: center;
+        appearance: auto;
+        -moz-appearance: none;
+        -webkit-appearance: none;
+    }
+
+    /* Memastikan tabel fleksibel */
+    .dataTables_wrapper .dataTables_length select {
+        display: inline-block !important;
+        min-width: 80px;
+        max-width: 100px;
+        padding: 6px;
+    }
+
+</style>
 
   @endsection
 

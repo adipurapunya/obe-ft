@@ -4,13 +4,16 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css">
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
 <div class="content-wrapper">
     <div class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1 class="m-0">Form Input Matriks Mata Kuliah dan CPMK</h1>
+                    <h1 class="m-0">Form Input Sub CPMK - {{$nama_mk->kode_mk}}  - {{$nama_mk->nama_mk}}</h1>
+                    
                 </div>
             </div>
         </div>
@@ -18,8 +21,8 @@
 
     <section class="content">
         <div class="card card-primary card-outline">
-            <div class="card-header">
-                <h5 class="m-0">Form Input Matriks Mata Kuliah dan CPMK</h5>
+            <div class="card-header">  
+                <!--<h5 class="m-0">Form Input Sub CPMK {{$nama_mk->nama_mk}} - {{$nama_mk->kode_mk}}</h5> -->
             </div>
 
             <div class="card-body">
@@ -172,6 +175,18 @@
 
 
         $('.form-group-template:first .remove-subcpmk').hide();
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        @if (session('warning'))
+            Swal.fire({
+                icon: 'warning',
+                title: 'Maaf Data Mahasiswa KOSONG',
+                text: '{{ session("warning") }}'
+            });
+        @endif
     });
 </script>
 

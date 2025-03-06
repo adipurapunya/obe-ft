@@ -7,5 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Mkcpmk extends Model
 {
-    protected $fillable = ['id', 'matkul_id', 'subcpl_id', 'kode_cpmk', 'desk_cpmk'];
+    protected $fillable = ['id', 'matkul_id', 'subcpl_id', 'kode_cpmk', 'desk_cpmk', 'kelas_id'];
+
+    public function kelas()
+    {
+        return $this->belongsTo(Kelas::class);
+    }
 }

@@ -31,17 +31,19 @@
                 <h5 class="m-0">Form Input Nilai</h5>
             </div>
             <div class="card-body">
-                <form role="form" method="post" action="{{ url('dosen/s_inpnilai')}}">
-                @csrf
-                <h5><b>Komponen Nilai</b></h5><br>
-                @foreach($inpnil as $ip)
-                    <input type="hidden" name="rubnilai_id" value="{{ $ip->rubnilai_id }}">
-                @endforeach
+
+                <h5><b>Mata Kuliah</b></h5><br>
+
                 <table style="width: 100%">
                     <tr>
                         <td style="width:12%"><b>Mata Kuliah</b></td>
                         <td style="width: 3%"></td>
                         <td style="width: 70%; border-bottom: 1px solid rgb(95, 158, 160); color: rgb(95, 158, 160);"><b>{{ $inpnil->first()->nama_mk }}</b></td>
+                    </tr>
+                    <tr>
+                        <td style="width:12%"><b>Kode Mata Kuliah</b></td>
+                        <td style="width: 3%"></td>
+                        <td style="width: 70%; border-bottom: 1px solid rgb(95, 158, 160); color: rgb(95, 158, 160);"><b>{{ $inpnil->first()->kode_mk }}</b></td>
                     </tr>
                     <tr>
                         <td style="width:8%"><b>Kelas</b></td>
@@ -53,22 +55,55 @@
                         <td style="width: 3%"></td>
                         <td style="width: 70%; border-bottom: 1px solid rgb(95, 158, 160); color: rgb(95, 158, 160);"><b>{{ $kelas->semester->keterangan }}</b></td>
                     </tr>
-                </table><br><br>
+                </table>
+
+                <!--<a href="" class="btn btn-lg" style="color:white; background-color: #5895bd">Download Template Excel Bos</a> -->
+
+                <table style="width:100%">
+                    <tr>
+                        <td style="width:8%"><h5><b> Import Nilai Excel</b></h5></td>
+                        <td style="width: 7%"></td>
+                        <td style="width:70%">
+                            <div class="button-container">
+
+                                <form action="{{ route('dosen.uploadTemplateExcel') }}" method="POST" enctype="multipart/form-data">
+                                    @csrf
+                                    <input type="hidden" name="kelas_id" value="{{ Crypt::encryptString($kelas_id) }}">
+                                    <a href="{{ route('dosen.downloadTemplateExcel', ['kelas_id' => Crypt::encryptString($kelas_id), 'kode_mk' => Crypt::encryptString($inpnil->first()->kode_mk)]) }}" class="btn btn-sm btn-success" style="color:white; background-color: #5895bd">Export Data Mahasiswa</a><br><br><br>
+                                    <div class="form-group">
+                                        <label for="file_excel">Upload Template Excel yang Sudah Diisi:</label>
+                                        <input type="file" name="file_excel" id="file_excel" class="form-control-file" accept=".xlsx, .xls" required>
+                                        <button type="submit" class="btn btn-sm btn-primary" style="margin-top:5px">Upload</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+
+                <form role="form" method="post" action="{{ url('dosen/s_inpnilai')}}">
+                @csrf
+                <input type="hidden" name="kelas_id" value="{{ Crypt::encryptString($kelas_id) }}">
+                @foreach($inpnil as $ip)
+                    <input type="hidden" name="rubnilai_id[]" value="{{ $ip->rubnilai_id }}">
+                @endforeach
                 <table class="table table-bordered table-striped">
-                    <thead style="color:white; background-color: #5895bd; text-align:center">
-                        <th style="width: fit-content">No.</th>
-                        <th style="width: fit-content">NIM</th>
-                        <th style="width: 30%">Nama</th>
+                    <!--<thead style="color:white; background-color: #5895bd; text-align:center"> -->
+                    <thead style="color: white; background-color: #5895bd; text-align: center; vertical-align: middle;">
+
+                        <th style="vertical-align: middle;">No.</th>
+                        <th style="vertical-align: middle;">NIM</th>
+                        <th style="width: 30%; vertical-align: middle;">NAMA</th>
                         @foreach($inpnil->unique('jen_penilaian') as $in)
                             @php
                                 $uniqueCpmk = $inpnil->where('jen_penilaian', $in->jen_penilaian)->pluck('cpmk_id')->unique();
                             @endphp
                             @foreach($uniqueCpmk as $cpmkId)
-                                <th style="width: 8%;">{{ $in->jen_penilaian }} - {{ $in->kode_cpmk }}</th>
+                                <th style="vertical-align: middle">{{ $in->jen_penilaian }} - {{ $in->label }} - {{ $in->kode_cpmk }}</th>
                             @endforeach
                         @endforeach
-                        <th style="width: fit-content">Absolut</th>
-                        <th style="width: fit-content">Relatif</th>
+                        {{-- <th style="width: fit-content; vertical-align: middle">Absolut</th>
+                        <th style="width: fit-content; vertical-align: middle">Relatif</th> --}}
                     </thead>
                     <tbody>
                         @foreach($mahasiswas as $mahasiswa)
@@ -89,14 +124,14 @@
                                         <td style="width: fit-content">
                                             <div class="form-group">
                                                 @if($nilai)
-                                                    <input type="text" name="nilai[{{ $mahasiswa->id }}][{{ $nilai->kompnilai_id }}]" class="form-control" required>
+                                                    <input type="text" style="text-align: center" name="nilai[{{ $mahasiswa->nim }}][{{ $nilai->kompnilai_id }}]" class="form-control" required>
                                                 @endif
                                             </div>
                                         </td>
                                     @endforeach
                                 @endforeach
-                                <td></td>
-                                <td></td>
+                                {{-- <td>NGULANG</td>
+                                <td>GAK LULUS</td> --}}
                             </tr>
                         @endforeach
                     </tbody>
@@ -108,6 +143,8 @@
                 </div>
             </div>
             </form>
+
+
         </div>
     </section>
     <!-- /.content -->
@@ -133,4 +170,59 @@ function konfirmasiHapus(id) {
 }
 </script>
 
+@if(session('success'))
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            Swal.fire({
+                title: 'Berhasil!',
+                text: "{{ session('success') }}",
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+        });
+    </script>
+@endif
+
+@if(session('error'))
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            Swal.fire({
+                title: 'Gagal!',
+                text: "{{ session('error') }}",
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        });
+    </script>
+@endif
+
 @endsection
+
+<style>
+        .container {
+            padding-left: 0;
+            margin-left: 0;
+        }
+        .button-container {
+            display: flex;
+            justify-content: left;
+            align-items: center;
+            gap: 20px; /* Jarak antara tombol */
+            margin-top: 20px; /* Jarak atas */
+        }
+        .button-container button, .button-container input[type="submit"] {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .download-button {
+            background-color: #5895bd; /* Biru */
+            color: white;
+        }
+        .upload-button {
+            background-color: #28a745; /* Hijau */
+            color: white;
+        }
+</style>

@@ -16,11 +16,18 @@
         </a>
         <ul class="dropdown-menu">
           <li class="user-footer">
-            <div class="align-left mb-2">
+            <div class="row">
+            <div class="align-center mb-2">
+                <div class="col-auto">
+                <form action="{{ route('change-password') }}" method="GET">
+                    <button type="submit" class="btn btn-success" style="float:left; color:white">Ganti Password</button>
+                </form>
                 <form action="{{ url('/logout') }}" method="POST">
                     @csrf
-                    <button type="submit" class="btn btn-block btn-warning">Sign out</button>
+                    <button type="submit" class="btn btn-danger" style="float:right">Log Out</button>
                 </form>
+                </div>
+            </div>
             </div>
             <div class="pull-right">
 

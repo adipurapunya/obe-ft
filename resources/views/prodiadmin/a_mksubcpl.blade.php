@@ -65,8 +65,10 @@
                         <hr>
 
                         <!-- Tombol Simpan di dalam form utama -->
-                        <button type="button" id="add-subcpl" class="btn btn-primary">+ Sub CPL</button>
-                        <button type="submit" class="btn btn-success">Simpan</button>
+                        <div class="button-container" style="display: flex; justify-content: flex-end; gap: 10px;">
+    <button type="button" id="add-subcpl" class="btn btn-primary">+ Sub CPL</button>
+    <button type="submit" class="btn btn-success">Simpan</button>
+</div>
                     </form>
                     <!-- Form utama selesai -->
 

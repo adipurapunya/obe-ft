@@ -21,9 +21,7 @@
             </div>
             <div class="card card-primary card-outline">
                     <div class="card-body">
-                        @foreach ($objek as $ds)
-                            <form action="/superadmin/u_kurikulum/{{$ds->id}}" method="POST" enctype="multipart/form-data">
-                        @endforeach
+                        <form action="/superadmin/u_kurikulum/{{$objek->id}}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('put')
 
@@ -32,7 +30,7 @@
                                 <strong>Jurusan / Prodi</strong>
                                     <select name="prodi_id" class="form-control">
                                         @foreach($prodi as $pr)
-                                            <option value="{{ $pr->id }}" @if($pr->id == $data->first()->prodi_id) selected @endif>{{ $pr->nama_prodi }}</option>
+                                            <option value="{{ $pr->id }}" @if($pr->id == $objek->prodi_id) selected @endif>{{ $pr->nama_prodi }}</option>
                                         @endforeach
                                     </select>
                             </div>
@@ -42,9 +40,7 @@
                                 <div class="form-group">
                                     <div class="form-group">
                                         <strong>Kode Kurikulum</strong>
-                                        @foreach($objek as $kr)
-                                            <input type="text" name="kode_kuri" value="{{ $kr->kode_kuri}}" class="form-control">
-                                        @endforeach
+                                            <input type="text" name="kode_kuri" value="{{ $objek->kode_kuri}}" class="form-control">
                                     </div>
                                 </div>
                             </div>
@@ -53,9 +49,7 @@
                                 <div class="form-group">
                                     <div class="form-group">
                                         <strong>Nama Kurikulum</strong>
-                                        @foreach($objek as $kr)
-                                            <input type="text" name="nama_kuri" value="{{ $kr->nama_kuri}}" class="form-control">
-                                        @endforeach
+                                            <input type="text" name="nama_kuri" value="{{ $objek->nama_kuri}}" class="form-control">
                                     </div>
                                 </div>
                             </div>
@@ -64,9 +58,7 @@
                                 <div class="form-group">
                                     <div class="form-group">
                                         <strong>Tahun Kurikulum</strong>
-                                        @foreach($objek as $kr)
-                                            <input type="text" name="tahun_kuri" value="{{ $kr->tahun_kuri}}" class="form-control">
-                                        @endforeach
+                                            <input type="text" name="tahun_kuri" value="{{ $objek->tahun_kuri}}" class="form-control">
                                     </div>
                                 </div>
                             </div>
@@ -75,9 +67,7 @@
                                 <div class="form-group">
                                     <div class="form-group">
                                         <strong>Deskripsi</strong>
-                                        @foreach($objek as $kr)
-                                            <input type="text" name="deskripsi" value="{{ $kr->deskripsi}}" class="form-control">
-                                        @endforeach
+                                            <input type="text" name="deskripsi" value="{{ $objek->deskripsi}}" class="form-control">
                                     </div>
                                 </div>
                             </div>
@@ -86,9 +76,7 @@
                                 <div class="form-group">
                                     <div class="form-group">
                                         <strong>No. SK Kurikulum</strong>
-                                        @foreach($objek as $kr)
-                                            <input type="text" name="sk_kuri" value="{{ $kr->sk_kuri}}" class="form-control">
-                                        @endforeach
+                                            <input type="text" name="sk_kuri" value="{{ $objek->sk_kuri}}" class="form-control">
                                     </div>
                                 </div>
                             </div>

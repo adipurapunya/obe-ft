@@ -7,5 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Inpnilai extends Model
 {
-    protected $fillable = ['rubnilai_id','mahasiswa_id','kompnilai_id','nilai','nilai_rata'];
+    use HasFactory;
+    protected $fillable = ['rubnilai_id','nim', 'kelas_id', 'kompnilai_id','nilai'];
 }

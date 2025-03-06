@@ -7,5 +7,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class Kajur extends Model
 {
-    use HasFactory;
+    protected $fillable = ['dosen_id', 'jabatan'];
 }

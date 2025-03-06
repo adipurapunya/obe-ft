@@ -37,7 +37,7 @@
                             <th style="width: 3%; text-align: center; vertical-align: middle;">No.</th>
                             <th style="width: 40%; text-align: center; vertical-align: middle;">Mata Kuliah</th>
                             {{-- <th style="width: 4%; text-align: center; vertical-align: middle;">Kelas</th> --}}
-                            <th style="width: 6%; text-align: center;">Aksi</th>
+                            <th style="width: 12%; text-align: center;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -47,7 +47,10 @@
                                 <td>{{ $ms->kode_mk }} - {{ $ms->nama_mk }}</td>
                                 {{-- <td><center>{{ $mk->nama_kelas }}</center></td> --}}
                                 <td>
-                                    <center><a href="{{ url('dosen/a_rps/'.Crypt::encryptString($ms->matkul_id), [])}}" class="btn btn-sm" style="color:white; background-color: #5895bd">+ Input Data RPS</a></center>
+                                    {{-- <center><a href="{{ url('dosen/a_rps/'.Crypt::encryptString($ms->matkul_id), [])}}" class="btn btn-sm" style="color:white; background-color: #5895bd">+ Input Data RPS</a></center> --}}
+                                    <center><a href="{{ url('dosen/a_genrps/'.Crypt::encryptString($ms->matkul_id), [])}}" class="btn btn-sm" style="color:white; background-color: #5895bd">+ Tabel Umum</a>
+                                    <a href="{{ url('dosen/a_meetrps/'.Crypt::encryptString($ms->matkul_id), [])}}" class="btn btn-sm" style="color:white; background-color: #277d63">+ Tabel Pertemuan</a>
+                                    <a href="{{ url('dosen/t_createrps/'.Crypt::encryptString($ms->matkul_id), [])}}" class="btn btn-sm" style="color:white; background-color: #062e8a; margin-top:5px;" target="_blank" rel="noopener noreferrer">Cetak RPS</a></center>
                                 </td>
                             </tr>
                         @endforeach
@@ -60,21 +63,81 @@
             </div>
     </section>
 
+    <section class="content">
+        <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h5 class="m-0">Komponen RPS Tabel Umum</h5>
+            </tr>
+            </div>
+            <div class="card-body">
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th style="width: 3%; text-align: center; vertical-align: middle;">No.</th>
+                            <th style="width: 10%; text-align: center; vertical-align: middle;">Mata Kuliah</th>
+                            <th style="width: 20%; text-align: center; vertical-align: middle;">Deskripsi Singkat</th>
+                            <th style="width: 3%; text-align: center;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($rps->unique('nama_mk') as $ms)
+                            <tr>
+                                <td><center>{{ $loop->iteration }}</center></td>
+                                <td>{{ $ms->kode_mk }} - {{ $ms->nama_mk }}</td>
+                                <td>{!! $ms->desk_singkat !!}</td>
+                                <td>
+                                    <center><a href="{{ url('dosen/det_genrps/'.Crypt::encryptString($ms->matkul_id), [])}}" class="btn btn-sm btn-primary">Detail</a></center>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                {{-- @else
+                <p>Tidak ada data yang tersedia.</p>
+                @endif --}}
+            </div>
+            </div>
+    </section>
+
+    <section class="content">
+        <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h5 class="m-0">Komponen RPS Tabel Pertemuan</h5>
+            </tr>
+            </div>
+            <div class="card-body">
+                <table id="example1" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th style="width: 3%; text-align: center; vertical-align: middle;">No.</th>
+                            <th style="width: 10%; text-align: center; vertical-align: middle;">Mata Kuliah</th>
+                            <th style="width: 20%; text-align: center; vertical-align: middle;">Indikator</th>
+                            <th style="width: 3%; text-align: center;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($rps->unique('nama_mk') as $ms)
+                            <tr>
+                                <td><center>{{ $loop->iteration }}</center></td>
+                                <td>{{ $ms->kode_mk }} - {{ $ms->nama_mk }}</td>
+                                <td>{!! $ms->indikator !!}</td>
+                                <td>
+                                    <center><a href="{{ url('dosen/e_genrps/'.Crypt::encryptString($ms->id), [])}}" class="btn btn-sm btn-primary">Detail</a></center>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                {{-- @else
+                <p>Tidak ada data yang tersedia.</p>
+                @endif --}}
+            </div>
+            </div>
+    </section>
+
     <!-- /.content -->
   </div>
-  <!-- /.content-wrapper -->
 
-    {{-- <script>
-        var selectedSemester = localStorage.getItem('selected_semester');
-
-        if (selectedSemester) {
-            document.getElementById('semester_select').value = selectedSemester;
-        }
-
-        document.getElementById('semester_select').addEventListener('change', function() {
-            localStorage.setItem('selected_semester', this.value);
-        });
-    </script> --}}
     <script>
         function konfirmasiHapus(id) {
             Swal.fire({

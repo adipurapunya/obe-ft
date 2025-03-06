@@ -32,19 +32,19 @@
             <div class="card-body">
                 <table id="example1" class="table table-bordered table-striped">
                     <thead>
-                        <th style="width: 3%">No.</th>
-                        <th style="width: 8%">Prodi</th>
+                        <th style="width: 3%"><center>No.</center></th>
+                        <th style="width: 8%"><center>Prodi</center></th>
                         <th style="width: 8%">Kurikulum</th>
-                        <th style="width: 9%">Kode CPL</th>
+                        <th style="width: 9%"><center>Kode CPL</center></th>
                         <th>Deskripsi</th>
                     </thead>
                     <tbody>
                         @foreach($cp as $cp)
                             <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ $cp->kopro }}</td>
+                                <td><center>{{ $loop->iteration }}</center></td>
+                                <td><center>{{ $cp->kopro }}</center></td>
                                 <td>{{ $cp->nama_kuri }}</td>
-                                <td>{{ $cp->kode_cpl }}</td>
+                                <td><center>{{ $cp->kode_cpl }}</center></td>
                                 <td>{{ $cp->deskrip_cpl }}</td>
                             </tr>
                         @endforeach

@@ -35,7 +35,7 @@
                 <table id="example1" class="table table-bordered table-striped">
                     <thead>
                         <th style="width: 3%">No.</th>
-                        <th style="width: 7%">Kode Jursan</th>
+                        <th style="width: 9%">Kode Jursan</th>
                         <th>Nama Jurusan</th>
                         <th>Inisial</th>
                         <th style="width: 5%">Jenjang</th>
@@ -50,8 +50,8 @@
                                 <td>{{ $pr->inisial }}</td>
                                 <td>{{ $pr->jenjang }}</td>
                                 <td>
-                                    <a href="{{ url('superadmin/e_prodi/'.Crypt::encryptString($pr->id), [])}}" class="btn btn-warning btn-sm">Edit</a>
-                                    <a href="javascript:void(0);" onclick="konfirmasiHapus('{{ Crypt::encryptString($pr->id) }}')" class="btn btn-danger btn-sm">Hapus</a>
+                                    <a href="{{ url('superadmin/e_prodi/'.Crypt::encryptString($pr->id), [])}}" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></a>
+                                    <a href="javascript:void(0);" onclick="konfirmasiHapus('{{ Crypt::encryptString($pr->id) }}')" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></a>
                                 </td>
                             </tr>
                         @endforeach

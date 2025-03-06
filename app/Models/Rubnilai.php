@@ -7,5 +7,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class Rubnilai extends Model
 {
-    protected $fillable = ['matkul_id', 'mkcpmk_id', 'kompnilai_id'];
+    protected $fillable = ['matkul_id', 'mkcpmk_id', 'kompnilai_id', 'kelas_id'];
 }

@@ -26,23 +26,27 @@
                 <form role="form" method="post" action="{{ url('dosen/s_mkcpmk/'.$matkulId) }}">
                     @csrf
 
+                    <input type="hidden" name="matkul_id" value="{{ $matkulId }}" readonly>
+                    <input type="hidden" name="kelas_id[]" value="{{ $kelasId }}" readonly>
+
                     <div class="col-xs-12 col-sm-12 col-md-12">
                         <div id="form-container">
                             <div class="row form-group-template">
                                 <input type="hidden" class="kode_mk" value="{{ $mcpmk->first()->kode_mk }}" readonly>
-                                <input type="hidden" name="matkul_id" value="{{ $matkulId }}" readonly>
+
 
                                 <div class="col-md-2">
                                     <div class="form-group">
                                         <label for="kode_subcpl">Kode Subcpl</label>
                                         <select name="subcpl_id[]" class="form-control kode_subcpl">
                                             <option value="">-- Pilih Kode SubCPL --</option>
-                                            @foreach($mcpmk as $subcpl)
-                                            <option value="{{ $subcpl->subcpl_id }}">{{ $subcpl->kode_subcpl }}</option>
+                                            @foreach($mcpmk->unique('subcpl_id') as $subcpl)
+                                                <option value="{{ $subcpl->subcpl_id }}">{{ $subcpl->kode_subcpl }}</option>
                                             @endforeach
                                         </select>
                                     </div>
                                 </div>
+
 
                                 <div class="col-md-8">
                                     <div class="form-group">
@@ -51,6 +55,7 @@
                                     </div>
                                 </div>
 
+
                                 <div class="col-md-2">
                                     <div class="form-group">
                                         <label for="kode_cpmk">Kode CPMK</label>
@@ -58,12 +63,13 @@
                                     </div>
                                 </div>
 
+
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <strong>Deskripsi CPMK</strong>
                                         <textarea name="desk_cpmk[]" class="form-control" style="height: 100px; resize: vertical;"></textarea>
                                         @if ($errors->has('desk_cpmk'))
-                                        <span class="text-danger">{{ $errors->first('desk_cpmk') }}</span>
+                                            <span class="text-danger">{{ $errors->first('desk_cpmk') }}</span>
                                         @endif
                                     </div>
                                 </div>
@@ -77,6 +83,7 @@
                             </div>
                         </div>
 
+
                         <div class="row">
                             <div class="col-md-12 text-right">
                                 <div class="form-group">
@@ -85,7 +92,6 @@
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </form>
             </div>
@@ -101,11 +107,7 @@
     }
 </style>
 
-
-
 <script>
-    var existingCpmks = @json($existingCpmks);
-
     $(document).ready(function() {
         function updateCpmkCodes() {
             var subcplUsage = {};
@@ -166,6 +168,7 @@
             $newForm.find('input, textarea').val('');
             $newForm.find('.kode_mk').val($('.form-group-template:first').find('.kode_mk').val());
             $newForm.find('.kode_cpmk').val('');
+            $newForm.find('input[name="kelas_id[]"]').val('{{ $kelasId }}');
             $('#form-container').append($newForm);
             initFormEvents();
             updateCpmkCodes();
@@ -176,6 +179,4 @@
     });
 </script>
 
-
 @endsection
-

@@ -52,9 +52,9 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://localhost'),
+    'url' => env('APP_URL', ''),
 
-    'asset_url' => env('ASSET_URL', null),
+    'asset_url' => env('ASSET_URL', ''),
 
     /*
     |--------------------------------------------------------------------------
@@ -161,11 +161,12 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
+        Maatwebsite\Excel\ExcelServiceProvider::class,
 
         /*
          * Package Service Providers...
          */
-
+        Barryvdh\DomPDF\ServiceProvider::class,
         /*
          * Application Service Providers...
          */
@@ -174,7 +175,7 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-
+        Yajra\DataTables\DataTablesServiceProvider::class,
     ],
 
     /*
@@ -229,6 +230,8 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+        'PDF' => Barryvdh\DomPDF\Facade\Pdf::class,
+        'DataTables' => Yajra\DataTables\Facades\DataTables::class,
 
     ],
 

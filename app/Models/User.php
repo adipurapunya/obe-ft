@@ -49,4 +49,14 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class, 'role_id');
     }
 
+    public function Admprodi()
+    {
+        return $this->hasOne(Admprodi::class, 'user_id', 'id');
+    }
+
+    public function dosen()
+    {
+        return $this->hasOne(Dosen::class);
+    }
+
 }

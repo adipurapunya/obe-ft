@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Support\Facades\Validator;
 
 
 use Illuminate\Http\Request;
@@ -14,6 +15,9 @@ use App\Models\Kurikulum;
 use App\Models\Semester;
 use App\Models\Matkul;
 use App\Imports\UserImport;
+use App\Models\Admprodi;
+use App\Models\Cpl;
+use App\Models\SubCpl;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
@@ -25,9 +29,17 @@ use Maatwebsite\Excel\Facades\Excel;
 class SuperadminController extends Controller
 {
     public function index() {
-        return view('superadmin.index');
+        $user = auth()->user();
+        if ($user) {
+            $roleName = $user->role->role_name;
+        } else {
+            $roleName = 'Unknown';
+        }
+
+        return view('superadmin.index', compact('roleName'));
     }
 
+    //USER
     public function t_listuser(Request $request)
     {
         $data = DB::table('users')
@@ -42,9 +54,7 @@ class SuperadminController extends Controller
     public function create_user()
     {
         $rolesToAvoid = ['pegawai1','pegawai2'];
-        $roles = Role::all()->filter(function ($role) use ($rolesToAvoid) {
-            return !in_array($role->name, $rolesToAvoid);
-        });
+        $roles = Role::whereNotIn('role_name', $rolesToAvoid)->get();
         return view('superadmin.create_user', compact('roles'));
     }
 
@@ -53,6 +63,7 @@ class SuperadminController extends Controller
 
         $this->validate($request, [
             'name' => 'required',
+            'nip' => 'required|unique:users,nip',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|same:confirm-password',
             'role_id' => 'required'
@@ -63,6 +74,7 @@ class SuperadminController extends Controller
 
         $data = [
             'name' => Request()->name,
+            'nip' => Request()->nip,
             'email' => Request()->email,
             'password' => Hash::make(Request()->password),
             'role_id' => Request()->role_id,
@@ -133,8 +145,10 @@ class SuperadminController extends Controller
 
         return redirect()->back()->with('success', 'Data user berhasil diimpor.');
     }
+    //END USER
 
 
+    //PRODI
     public function t_prodi()
     {
         $data = [
@@ -193,7 +207,105 @@ class SuperadminController extends Controller
         return redirect('superadmin/t_prodi');
     }
 
+    public function h_prodi($id)
+    {
+        $decryptID = Crypt::decryptString($id);
+        $data = Prodi::find($decryptID);
+        $data->delete();
+        return redirect('/superadmin/t_prodi');
+    }
+    //END PRODI
 
+
+    //ADMIN PRODI
+    public function t_adminprodi()
+    {
+        $data = DB::table('admprodis')
+        ->join('prodis','prodis.id', '=', 'admprodis.prodi_id')
+        ->join('users','users.id', '=', 'admprodis.user_id')
+        ->select('admprodis.*', 'prodis.nama_prodi', 'users.name')
+        ->orderBy('admprodis.created_at', 'desc')
+        ->get();
+
+        return view ('superadmin.t_adminprodi', compact('data'));
+    }
+
+    public function a_adminprodi()
+    {
+        $prodi = Prodi::all();
+        $users = User::all();
+
+        return view('superadmin/a_adminprodi', compact('prodi', 'users'));
+    }
+
+
+    public function getUserNameProdi($user_id)
+    {
+        $user = User::findOrFail($user_id);
+        return response()->json(['nama_adminprodi' => $user->name]);
+    }
+
+    public function s_adminprodi(Request $request)
+    {
+
+        $request->validate([
+            'user_id' => 'required',
+            'prodi_id' => 'required',
+            'koprodi' => 'required',
+        ]);
+
+        $nama_dosen = DB::table('users')->where('id', $request->user_id)->value('name');
+
+        Admprodi::create([
+            'user_id' => $request->user_id,
+            'prodi_id' => $request->prodi_id,
+            'koprodi' => $request->koprodi,
+        ]);
+
+        return redirect('superadmin/t_adminprodi');
+    }
+
+    public function e_adminprodi($id)
+    {
+        $prodi = Prodi::all();
+        $users = User::all();
+
+        $data = DB::table('admprodis')
+        ->join('prodis','prodis.id', '=', 'admprodis.prodi_id')
+        ->join('users','users.id', '=', 'admprodis.user_id')
+        ->select('admprodis.*', 'prodis.nama_prodi')
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+        $decryptID = Crypt::decryptString($id);
+        $objek = Admprodi::with('prodi', 'user')->findOrFail($decryptID);
+
+        return view('superadmin.e_adminprodi', compact('objek','data', 'prodi', 'users'));
+    }
+
+    public function u_adminprodi(Request $request, $id)
+    {
+        $objek = Admprodi::findOrFail($id);
+        $data = array();
+        $data = $request->except('_token', '_method');
+        $objek->update ($data);
+        $data['objek'] = $objek;
+
+        // dd($request->all());
+        return redirect('superadmin/t_adminprodi');
+    }
+
+    public function h_adminprodi($id)
+    {
+        $decryptID = Crypt::decryptString($id);
+        $data = Admprodi::find($decryptID);
+        $data->delete();
+        return redirect('/superadmin/t_adminprodi');
+    }
+    //END ADMIN PRODI
+
+
+    //DOSEN
     public function t_dosen()
     {
         $data = DB::table('dosens')
@@ -271,12 +383,21 @@ class SuperadminController extends Controller
         return redirect('superadmin/t_dosen');
     }
 
+    public function h_dosen($id)
+    {
+        $decryptID = Crypt::decryptString($id);
+        $data = Dosen::find($decryptID);
+        $data->delete();
+        return redirect('/superadmin/t_dosen');
+    }
+    //END DOSEN
 
+
+    //MAHASISWA
     public function t_mahasiswa()
     {
         $data = DB::table('mahasiswas')
         ->join('prodis','prodis.id', '=', 'mahasiswas.prodi_id')
-        // ->join('users','users.id', '=', 'dosens.user_id')
         ->select('mahasiswas.*', 'prodis.nama_prodi')
         ->orderBy('created_at', 'desc')
         ->get();
@@ -346,7 +467,17 @@ class SuperadminController extends Controller
         return redirect('superadmin/t_mahasiswa');
     }
 
+    public function h_mahasiswa($id)
+    {
+        $decryptID = Crypt::decryptString($id);
+        $data = Mahasiswa::find($decryptID);
+        $data->delete();
+        return redirect('/superadmin/t_mahasiswa');
+    }
+    //END MAHASISWA
 
+
+    //KURIKULUM
     public function a_kurikulum()
     {
         $prod = Prodi::all();
@@ -412,7 +543,7 @@ class SuperadminController extends Controller
         ->get();
 
         $decryptID = Crypt::decryptString($id);
-        $objek = Kurikulum::findOrFail($decryptID)->where('id', $decryptID)->get();
+        $objek = Kurikulum::findOrFail($decryptID);
 
         return view('superadmin.e_kurikulum', compact('objek','data','prodi'));
     }
@@ -449,7 +580,17 @@ class SuperadminController extends Controller
         return view('superadmin/t_kurikulum', compact('kuri'));
     }
 
+    public function h_kurikulum($id)
+    {
+        $decryptID = Crypt::decryptString($id);
+        $data = Kurikulum::find($decryptID);
+        $data->delete();
+        return redirect('/superadmin/t_kurikulum');
+    }
+    //END KURIKULUM
 
+
+    //SEMESTER
     public function t_semester()
     {
         $data = [
@@ -509,19 +650,59 @@ class SuperadminController extends Controller
         return redirect('superadmin/t_semester');
     }
 
+    public function h_semester($id)
+    {
+        $decryptID = Crypt::decryptString($id);
+        $data = Semester::find($decryptID);
+        $data->delete();
+        return redirect('/superadmin/t_semester');
+    }
+    //END SEMESTER
 
     public function t_matkul()
     {
-        $matk = DB::table('matkuls')
-        ->leftjoin('prodis','prodis.id', '=', 'matkuls.prodi_id')
-        ->leftjoin('kurikulums','kurikulums.id', '=', 'matkuls.kurikulum_id')
-        ->leftjoin('semesters','semesters.id', '=', 'matkuls.semester_id')
-        // ->leftjoin('dosens','dosens.id', '=', 'matkuls.dosen_id')
-        ->select('matkuls.*', 'prodis.kopro', 'kurikulums.nama_kuri', 'semesters.nama_smtr' )
-        ->latest()->get();
 
-        return view('superadmin/t_matkul', compact('matk'));
+        $matk = DB::table('matkuls')
+            ->leftJoin('prodis', 'prodis.id', '=', 'matkuls.prodi_id')
+            ->leftJoin('kurikulums', 'kurikulums.id', '=', 'matkuls.kurikulum_id')
+            ->leftJoin('semesters', 'semesters.id', '=', 'matkuls.semester_id')
+            ->select('matkuls.*', 'prodis.kopro', 'kurikulums.nama_kuri', 'semesters.nama_smtr')
+            ->orderBy('nama_smtr', 'asc')->get();
+
+        $prodiList = Prodi::pluck('nama_prodi', 'id');
+
+        return view('superadmin/t_matkul', compact('matk', 'prodiList'));
     }
+
+    public function filterMatkul(Request $request)
+    {
+        $validated = $request->validate([
+            'prodi_id' => 'nullable|exists:prodis,id',
+        ]);
+
+        $prodi_id = $request->input('prodi_id');
+
+        if ($prodi_id) {
+            $matk = DB::table('matkuls')
+                ->leftJoin('prodis', 'prodis.id', '=', 'matkuls.prodi_id')
+                ->leftJoin('kurikulums', 'kurikulums.id', '=', 'matkuls.kurikulum_id')
+                ->leftJoin('semesters', 'semesters.id', '=', 'matkuls.semester_id')
+                ->when($prodi_id, function ($query, $prodi_id) {
+                    return $query->where('matkuls.prodi_id', $prodi_id);
+                })
+                ->select('matkuls.*', 'prodis.kopro', 'kurikulums.nama_kuri', 'semesters.nama_smtr')
+                ->latest()->get();
+
+            } else {
+                $matk = [];
+            }
+
+        $prodiList = Prodi::pluck('nama_prodi', 'id');
+
+        return view('superadmin/t_matkul', compact('matk', 'prodiList'));
+    }
+
+
 
     public function a_matkul()
     {
@@ -571,15 +752,32 @@ class SuperadminController extends Controller
         return redirect('superadmin/t_matkul');
     }
 
-    public function t_cpl()
+    public function t_cpl(Request $request)
     {
-        $cp = DB::table('cpls')
-        ->leftjoin('prodis','prodis.id', '=', 'cpls.prodi_id')
-        ->leftjoin('kurikulums','kurikulums.id', '=', 'cpls.kurikulum_id')
-        ->select('cpls.*', 'prodis.kopro', 'kurikulums.nama_kuri')
-        ->latest()->get();
+        $prodi_id = $request->prodi_id;
 
-        return view('superadmin/t_cpl', compact('cp'));
+        if ($prodi_id) {
+            $cp = DB::table('cpls')
+                    ->leftJoin('prodis as p', 'p.id', '=', 'cpls.prodi_id')
+                    ->leftJoin('kurikulums as k', 'k.id', '=', 'cpls.kurikulum_id')
+                    ->select('cpls.*', 'p.kopro', 'k.nama_kuri')
+                    ->where('cpls.prodi_id', $prodi_id)
+                    ->get();
+        } else {
+            $cp = [];
+        }
+
+        $prodiList = Prodi::pluck('nama_prodi', 'id');
+
+        return view('superadmin.t_cpl', compact('cp', 'prodiList'));
+    }
+
+    public function h_cpl($id)
+    {
+        $decryptID = Crypt::decryptString($id);
+        $data = Cpl::find($decryptID);
+        $data->delete();
+        return redirect('/superadmin/t_cpl');
     }
 
     public function a_cpl()
@@ -589,6 +787,8 @@ class SuperadminController extends Controller
 
         return view ('superadmin/a_cpl', compact('prod','kuri'));
     }
+
+
 
     public function s_cpl(Request $request)
     {
@@ -617,33 +817,199 @@ class SuperadminController extends Controller
     }
 
 
-    public function t_cpmk()
-    {
-        $cpm = DB::table('cpmks')
-        ->leftjoin('matkuls','matkuls.id', '=', 'cpmks.matkul_id')
-        ->leftjoin('prodis','prodis.id', '=', 'matkuls.prodi_id')
-        ->leftjoin('kurikulums','kurikulums.id', '=', 'matkuls.kurikulum_id')
-        ->leftjoin('semesters','semesters.id', '=', 'matkuls.semester_id')
-        // ->leftjoin('dosens','dosens.id', '=', 'matkuls.dosen_id')
-        ->select('cpmks.*', 'matkuls.nama_mk', 'matkuls.kode_mk')
-        ->latest()->get();
+    // public function t_cpmk()
+    // {
+    //     $cpm = DB::table('cpmks')
+    //     ->leftjoin('matkuls','matkuls.id', '=', 'cpmks.matkul_id')
+    //     ->leftjoin('prodis','prodis.id', '=', 'matkuls.prodi_id')
+    //     ->leftjoin('kurikulums','kurikulums.id', '=', 'matkuls.kurikulum_id')
+    //     ->leftjoin('semesters','semesters.id', '=', 'matkuls.semester_id')
+    //     // ->leftjoin('dosens','dosens.id', '=', 'matkuls.dosen_id')
+    //     ->select('cpmks.*', 'matkuls.nama_mk', 'matkuls.kode_mk')
+    //     ->latest()->get();
 
-        return view('superadmin/t_cpmk', compact('cpm'));
+    //     return view('superadmin/t_cpmk', compact('cpm'));
+    // }
+
+    // public function a_cpmk()
+    // {
+    //     $matk = DB::table('matkuls')
+    //     ->leftjoin('dosens','dosens.id', '=', 'matkuls.dosen_id')
+    //     ->leftjoin('prodis','prodis.id', '=', 'matkuls.prodi_id')
+    //     ->leftjoin('kurikulums','kurikulums.id', '=', 'matkuls.kurikulum_id')
+    //     ->leftjoin('semesters','semesters.id', '=', 'matkuls.semester_id')
+    //     // ->leftjoin('dosens','dosens.id', '=', 'matkuls.dosen_id')
+    //     ->select('cpmks.*', 'matkuls.nama_mk', 'matkuls.kode_mk')
+    //     ->latest()->get();
+
+
+    //     return view('superadmin/a_cpmk', compact('matk','dosen','prodi_id'));
+    // }
+
+
+    public function t_pengesah()
+    {
+        $kajur = DB::table('kajurs')
+            ->join('dosens','dosens.id', '=', 'kajurs.dosen_id')
+            ->join('prodis','prodis.id', '=', 'dosens.prodi_id')
+            ->join('users','users.id', '=', 'dosens.user_id')
+            ->select('kajurs.*', 'prodis.nama_prodi', 'users.name as nama_dosen', 'dosens.nip', 'dosens.nidn')
+            ->get();
+
+        return view ('superadmin.t_pengesah', compact('kajur'));
+
     }
 
-    public function a_cpmk()
+
+    public function t_subcpl(Request $request)
     {
-        $matk = DB::table('matkuls')
-        ->leftjoin('dosens','dosens.id', '=', 'matkuls.dosen_id')
-        ->leftjoin('prodis','prodis.id', '=', 'matkuls.prodi_id')
-        ->leftjoin('kurikulums','kurikulums.id', '=', 'matkuls.kurikulum_id')
-        ->leftjoin('semesters','semesters.id', '=', 'matkuls.semester_id')
-        // ->leftjoin('dosens','dosens.id', '=', 'matkuls.dosen_id')
-        ->select('cpmks.*', 'matkuls.nama_mk', 'matkuls.kode_mk')
-        ->latest()->get();
+        $prodiList = Prodi::pluck('nama_prodi', 'id');
+
+        $query = DB::table('subcpls')
+            ->leftJoin('cpls', 'cpls.id', '=', 'subcpls.cpl_id')
+            ->leftJoin('prodis', 'prodis.id', '=', 'cpls.prodi_id')
+            ->leftJoin('kurikulums', 'kurikulums.id', '=', 'cpls.kurikulum_id')
+            ->select('subcpls.*', 'kurikulums.nama_kuri', 'cpls.kode_cpl');
+
+        if ($request->has('prodi_id') && !empty($request->prodi_id)) {
+            $query->where('prodis.id', $request->prodi_id);
+        } else {
+            $scp = [];
+            return view('superadmin/t_subcpl', compact('scp', 'prodiList'));
+        }
+
+        $scp = $query->get();
+        return view('superadmin/t_subcpl', compact('scp', 'prodiList'));
+    }
+
+    public function h_subcpl($id)
+    {
+        $decryptID = Crypt::decryptString($id);
+        $data = SubCpl::find($decryptID);
+        $data->delete();
+        return redirect()->back();
+    }
 
 
-        return view('superadmin/a_cpmk', compact('matk','dosen','prodi_id'));
+    public function t_mkcpmk(Request $request)
+    {
+    $smtr = Semester::all();
+    $encrypted_semester_id = $request->input('semester_id');
+    $mata_kuliah = [];
+    $mkcp = [];
+
+    if ($encrypted_semester_id) {
+        $semester_id = decrypt($encrypted_semester_id);
+
+        $mata_kuliah_satu = DB::table('kelas')
+            ->join('matkuls', 'kelas.matkul_id', '=', 'matkuls.id')
+            ->join('semesters', 'semesters.id', '=', 'kelas.semester_id')
+            ->join('dosens', 'dosens.id', '=', 'kelas.dosen_satu')
+            ->join('prodis', 'prodis.id', '=', 'dosens.prodi_id')
+            ->join('users', 'dosens.user_id', '=', 'users.id')
+            ->where('semesters.id', $semester_id)
+            ->select('matkuls.kode_mk', 'matkuls.nama_mk', 'users.name as nama_dosen',
+                    'kelas.nama_kelas', 'prodis.kopro', 'sks_teo', 'sks_kuri', 'sks_prak', 'sks_lap',
+                    'dosens.nidn', 'prodis.nama_prodi', 'semesters.keterangan', 'kelas.matkul_id');
+
+        $mata_kuliah_dua = DB::table('kelas')
+            ->join('matkuls', 'kelas.matkul_id', '=', 'matkuls.id')
+            ->join('semesters', 'semesters.id', '=', 'kelas.semester_id')
+            ->join('dosens', 'dosens.id', '=', 'kelas.dosen_dua')
+            ->join('prodis', 'prodis.id', '=', 'dosens.prodi_id')
+            ->join('users', 'dosens.user_id', '=', 'users.id')
+            ->where('semesters.id', $semester_id)
+            ->select('matkuls.kode_mk', 'matkuls.nama_mk', 'users.name as nama_dosen',
+                    'kelas.nama_kelas', 'prodis.kopro', 'sks_teo', 'sks_kuri', 'sks_prak', 'sks_lap',
+                    'dosens.nidn', 'prodis.nama_prodi', 'semesters.keterangan', 'kelas.matkul_id');
+
+        $mata_kuliah_tiga = DB::table('kelas')
+            ->join('matkuls', 'kelas.matkul_id', '=', 'matkuls.id')
+            ->join('semesters', 'semesters.id', '=', 'kelas.semester_id')
+            ->join('dosens', 'dosens.id', '=', 'kelas.dosen_tiga')
+            ->join('prodis', 'prodis.id', '=', 'dosens.prodi_id')
+            ->join('users', 'dosens.user_id', '=', 'users.id')
+            ->where('semesters.id', $semester_id)
+            ->select('matkuls.kode_mk', 'matkuls.nama_mk', 'users.name as nama_dosen',
+                    'kelas.nama_kelas', 'prodis.kopro', 'sks_teo', 'sks_kuri', 'sks_prak', 'sks_lap',
+                    'dosens.nidn', 'prodis.nama_prodi', 'semesters.keterangan', 'kelas.matkul_id');
+
+        $mata_kuliah_empat = DB::table('kelas')
+            ->join('matkuls', 'kelas.matkul_id', '=', 'matkuls.id')
+            ->join('semesters', 'semesters.id', '=', 'kelas.semester_id')
+            ->join('dosens', 'dosens.id', '=', 'kelas.dosen_empat')
+            ->join('prodis', 'prodis.id', '=', 'dosens.prodi_id')
+            ->join('users', 'dosens.user_id', '=', 'users.id')
+            ->where('semesters.id', $semester_id)
+            ->select('matkuls.kode_mk', 'matkuls.nama_mk', 'users.name as nama_dosen',
+                    'kelas.nama_kelas', 'prodis.kopro', 'sks_teo', 'sks_kuri', 'sks_prak', 'sks_lap',
+                    'dosens.nidn', 'prodis.nama_prodi', 'semesters.keterangan', 'kelas.matkul_id');
+
+        $mata_kuliah = $mata_kuliah_satu->union($mata_kuliah_dua)
+            ->union($mata_kuliah_tiga)
+            ->union($mata_kuliah_empat)
+            ->get();
+
+        $mkcp = DB::table('mkcpmks')
+            ->join('mkscpls', 'mkscpls.subcpl_id', '=', 'mkcpmks.subcpl_id')
+            ->join('kelas', 'kelas.matkul_id', '=', 'mkscpls.matkul_id')
+            ->join('matkuls', 'matkuls.id', '=', 'mkcpmks.matkul_id')
+            ->join('semesters', 'semesters.id', '=', 'kelas.semester_id')
+            ->join('dosens', 'dosens.id', '=', 'kelas.dosen_satu')
+            ->join('prodis', 'prodis.id', '=', 'dosens.prodi_id')
+            ->join('users', 'dosens.user_id', '=', 'users.id')
+            // ->where('users.email', $user_email)
+            ->where('semesters.id', $semester_id)
+            ->select('matkuls.kode_mk', 'matkuls.nama_mk', 'users.name as nama_dosen',
+                    'kelas.matkul_id', 'kelas.nama_kelas','mkcpmks.kode_cpmk',
+                    'mkcpmks.desk_cpmk','mkcpmks.id as mkcpmk_id')
+            ->distinct()
+            ->get();
+    }
+
+    return view('superadmin/t_mkcpmk', compact('mata_kuliah', 'smtr', 'encrypted_semester_id', 'mkcp'));
+    }
+
+
+    public function t_mkscpmk(Request $request)
+    {
+    $smtr = Semester::all();
+    $encrypted_semester_id = $request->input('semester_id');
+
+    $mkscp = [];
+    $mksucp = [];
+
+    if ($encrypted_semester_id) {
+        $semester_id = decrypt($encrypted_semester_id);
+
+        $mkscp = DB::table('kelas')
+            ->join('matkuls', 'kelas.matkul_id', '=', 'matkuls.id')
+            ->join('semesters', 'semesters.id', '=', 'kelas.semester_id')
+            ->join('dosens', 'dosens.id', '=', 'kelas.dosen_satu')
+            ->join('prodis', 'prodis.id', '=', 'dosens.prodi_id')
+            ->join('users', 'dosens.user_id', '=', 'users.id')
+            ->where('semesters.id', $semester_id)
+            ->select('matkuls.kode_mk', 'matkuls.nama_mk', 'kelas.matkul_id', 'prodis.kopro')
+            ->distinct()
+            ->get();
+
+        $mksucp = DB::table('mksubcpmks')
+            ->join('mkcpmks', 'mksubcpmks.mkcpmk_id', '=', 'mkcpmks.id')
+            // ->join('mkcpmks', 'mkscpls.subcpl_id', '=', 'mkcpmks.subcpl_id')
+            ->join('kelas', 'kelas.matkul_id', '=', 'mksubcpmks.matkul_id')
+            ->join('matkuls', 'matkuls.id', '=', 'mkcpmks.matkul_id')
+            ->join('semesters', 'semesters.id', '=', 'kelas.semester_id')
+            ->join('dosens', 'dosens.id', '=', 'kelas.dosen_satu')
+            ->join('prodis', 'prodis.id', '=', 'dosens.prodi_id')
+            ->join('users', 'dosens.user_id', '=', 'users.id')
+            ->where('semesters.id', $semester_id)
+            ->select('matkuls.kode_mk', 'matkuls.nama_mk', 'mkcpmks.kode_cpmk',
+                    'mksubcpmks.kode_scpmk', 'mksubcpmks.desk_scpmk', 'mksubcpmks.id as mkscpmk_id')
+            ->distinct()
+            ->get();
+    }
+
+    return view('superadmin/t_mkscpmk', compact('mkscp', 'mksucp', 'smtr', 'encrypted_semester_id'));
     }
 
 

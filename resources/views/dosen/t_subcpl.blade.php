@@ -32,19 +32,19 @@
             <div class="card-body">
                 <table id="example1" class="table table-bordered table-striped">
                     <thead>
-                        <th style="width: 3%">No.</th>
+                        <th style="width: 3%"><center>No.</center></th>
                         <th style="width: 12%">Kurikulum</th>
-                        <th style="width: 12%">Kode CPL</th>
-                        <th style="width: 12%">Kode Sub CPL</th>
+                        <th style="width: 12%"><center>Kode CPL</center></th>
+                        <th style="width: 12%"><center>Kode Sub CPL</center></th>
                         <th>Deskripsi</th>
                     </thead>
                     <tbody>
                         @foreach($scp as $cp)
                             <tr>
-                                <td>{{ $loop->iteration }}</td>
+                                <td><center>{{ $loop->iteration }}</center></td>
                                 <td>{{ $cp->nama_kuri }}</td>
-                                <td>{{ $cp->kode_cpl }}</td>
-                                <td>{{ $cp->kode_subcpl }}</td>
+                                <td><center>{{ $cp->kode_cpl }}</center></td>
+                                <td><center>{{ $cp->kode_subcpl }}</center></td>
                                 <td>{{ $cp->desk_subcpl }}</td>
                             </tr>
                         @endforeach
